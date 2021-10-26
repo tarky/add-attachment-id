@@ -4,7 +4,7 @@ Plugin Name: Add Attachment Id
 Author: webfood
 Plugin URI: http://webfood.info/
 Description: Add Attachment Id.
-Version: 0.1
+Version: 0.2
 Author URI: http://webfood.info/
 Text Domain: Add Attachment Id
 Domain Path: /languages
@@ -68,8 +68,7 @@ function get_attachment_id( $url ) {
 	$dir = wp_upload_dir();
 
 	if ( false !== strpos( $url, $dir['baseurl'] . '/' ) ) { // Is URL in uploads directory?
-		$file = basename( $url );
-
+    $file = str_replace($dir['baseurl'] . '/' , "",$url);
 		$query_args = array(
 			'post_type'   => 'attachment',
 			'post_status' => 'inherit',
@@ -86,24 +85,11 @@ function get_attachment_id( $url ) {
 		$query = new WP_Query( $query_args );
 
 		if ( $query->have_posts() ) {
-
 			foreach ( $query->posts as $post_id ) {
-
-				$meta = wp_get_attachment_metadata( $post_id );
-
-				$original_file       = basename( $meta['file'] );
-				$cropped_image_files = wp_list_pluck( $meta['sizes'], 'file' );
-
-				if ( $original_file === $file || in_array( $file, $cropped_image_files ) ) {
-					$attachment_id = $post_id;
-					break;
-				}
-
+        $attachment_id = $post_id;
+				break;
 			}
-
 		}
-
 	}
-
 	return $attachment_id;
 }
